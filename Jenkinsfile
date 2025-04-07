@@ -17,7 +17,7 @@ Pipeline {
     stages {
         stage('Terraform Init') {
             steps {
-                dir('terraform') {
+                dir('assign3') {
                     bat '''
                         set PATH=%AZURE_CLI_PATH%;%SYSTEM_PATH%;%TERRAFORM_PATH%;%PATH%
                         terraform init
@@ -28,7 +28,7 @@ Pipeline {
 
         stage('Terraform Plan & Apply') {
             steps {
-                dir('terraform') {
+                dir('assign3') {
                     bat '''
                         set PATH=%AZURE_CLI_PATH%;%SYSTEM_PATH%;%TERRAFORM_PATH%;%PATH%
                         terraform plan
