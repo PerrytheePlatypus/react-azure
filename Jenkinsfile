@@ -1,5 +1,9 @@
-Pipeline {
+pipeline {
     agent any
+
+    options {
+        timestamps() // Adds timestamps to logs
+    }
 
     tools {
         nodejs 'NodeJS 18.x' 
@@ -42,10 +46,14 @@ Pipeline {
             steps {
                 dir('extra-cc') {
                     bat 'npm install'
-                    // Ensure compatibility for "relateurl" library issue
-                    bat 'echo module.exports = {}; > node_modules\\relateurl\\lib\\index.js'
+
+                    // Fix for "relateurl" library issue
+                    bat '''
+                        echo module.exports = {}; > node_modules\\relateurl\\lib\\index.js
+                    '''
+
                     bat 'npm run build'
-                    
+
                     // Zip the React build folder
                     bat '''
                         powershell -Command "if (Test-Path ../ReactApp.zip) { Remove-Item ../ReactApp.zip -Force }"
@@ -61,12 +69,6 @@ Pipeline {
                     // Log in to Azure using service principal credentials
                     bat '''
                         az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% --tenant %AZURE_TENANT_ID%
-                    '''
-                    
-                    // Compress the build folder into a ZIP file for deployment
-                    bat '''
-                        powershell -Command "if (Test-Path ./extra-cc/build.zip) { Remove-Item ./extra-cc/build.zip -Force }"
-                        powershell Compress-Archive -Path ./extra-cc/build/* -DestinationPath ./extra-cc/build.zip -Force
                     '''
 
                     // Deploy the ZIP file to Azure App Service
